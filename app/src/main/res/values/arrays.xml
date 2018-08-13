@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="categories">
+        <item>Личные вещи</item>
+        <item>Транспорт</item>
+        <item>Для дома и дачи</item>
+        <item>Бытовая электроника</item>
+        <item>Хобби и отдых</item>
+        <item>Недвижимость</item>
+        <item>Услуги</item>
+        <item>Работа</item>
+        <item>Животные</item>
+        <item>Для бизнеса</item>
+    </string-array>
+</resources>

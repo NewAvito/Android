@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/item_margin"
+    android:layout_marginRight="@dimen/item_margin"
+    android:layout_marginLeft="@dimen/item_margin"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="true">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/image_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.android.volley.toolbox.NetworkImageView
+                android:id="@+id/product_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimaryDark"
+                android:scaleType="centerCrop"/>
+
+            <ImageButton
+                android:layout_width="@dimen/like_size"
+                android:layout_height="@dimen/like_size"
+                android:id="@+id/like_view"
+                android:background="@color/transparent"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:layout_marginRight="@dimen/like_margin"
+                android:layout_marginEnd="@dimen/like_margin"
+                android:layout_marginBottom="@dimen/like_margin"
+                android:src="@drawable/icons8_like_50"
+                android:layout_gravity="end|bottom"/>
+        </FrameLayout>
+        <LinearLayout
+            android:id="@+id/short_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/short_margin"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/image_description">
+
+            <TextView
+                android:id="@+id/product_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceSubtitle2" />
+
+            <TextView
+                android:id="@+id/product_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/product_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceBody2" />
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+</android.support.design.card.MaterialCardView>

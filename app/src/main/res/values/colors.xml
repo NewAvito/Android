@@ -2,5 +2,15 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#000</color>
+
+    <color name="colorControlActivated">@color/colorPrimaryDark</color>
+
+    <color name="textColor">@color/white</color>
+
+    <color name="listBackgroundColor">#e6e6e6</color>
+
+    <color name="white">#ffffff</color>
+
+    <color name="transparent">#00000000</color>
 </resources>

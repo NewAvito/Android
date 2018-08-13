@@ -1,20 +1,33 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="Theme.NewAvito" parent="Theme.MaterialComponents.Light.NoActionBar">
+
+        <item name="android:statusBarColor" tools:targetApi="m">@color/colorControlActivated</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-    </style>
 
-    <style name="AppTheme.NoActionBar">
+        <item name="android:textColor">@color/colorPrimary</item>
+
+        <item name="android:windowContentOverlay">@null</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <!--Text input theme-->
+    <style name="Widget.NewAvito.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.NewAvito.Dialog" parent="Base.Theme.MaterialComponents.Light.Dialog">
+        <item name="android:windowMinWidthMajor">80%</item>
+        <item name="android:windowMinWidthMinor">80%</item>
+    </style>
+
+
 
 </resources>
