@@ -154,19 +154,21 @@ public class ListFragment extends android.support.v4.app.Fragment {
         dialog.setCanceledOnTouchOutside(true);
 
         String[] stringArray = getResources().getStringArray(R.array.categories);
-        List<String> stringList= Arrays.asList(stringArray);
         RadioGroup rg = dialog.findViewById(R.id.radio_group);
 
-        for(int i=0;i<stringList.size();i++){
-            RadioButton rb=new RadioButton(getActivity()); // dynamically creating RadioButton and adding to RadioGroup.
-            rb.setText(stringList.get(i));
+        for(int i=0; i<stringArray.length;i++){
+            RadioButton rb=new RadioButton(getActivity());
+            rb.setText(stringArray[i]);
+            rb.setId(i);
             rg.addView(rb);
         }
 
         Button choose = dialog.findViewById(R.id.button_choose);
         choose.setOnClickListener(view -> {
-            Log.d("Dialog", "Selected: "+stringArray[(((int) rg.getCheckedRadioButtonId())-1)]);
-            dialog.cancel();
+            if (rg.getCheckedRadioButtonId() != -1) {
+                Log.d("Dialog", "Selected: " + stringArray[rg.getCheckedRadioButtonId()]);
+                dialog.cancel();
+            }
         });
 
         dialog.show();
