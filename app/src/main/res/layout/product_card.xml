@@ -29,9 +29,9 @@
                 android:scaleType="centerCrop"/>
 
             <ImageButton
+                android:id="@+id/like_view"
                 android:layout_width="@dimen/like_size"
                 android:layout_height="@dimen/like_size"
-                android:id="@+id/like_view"
                 android:background="@color/transparent"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
@@ -39,13 +39,14 @@
                 android:layout_marginEnd="@dimen/like_margin"
                 android:layout_marginBottom="@dimen/like_margin"
                 android:src="@drawable/icons8_like_50"
-                android:layout_gravity="end|bottom"/>
+                android:layout_gravity="end|bottom"
+                android:contentDescription="@string/like"/>
         </FrameLayout>
         <LinearLayout
             android:id="@+id/short_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/short_margin"
+            android:layout_marginTop="@dimen/short_place"
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/image_description">
 

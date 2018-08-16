@@ -1,4 +1,4 @@
-package com.shifu.user.shifu_5_newavito;
+package com.shifu.user.shifu_5_newavito.ui;
 
 import android.content.Context;
 import android.support.design.widget.TextInputEditText;
@@ -8,6 +8,8 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+
+import com.shifu.user.shifu_5_newavito.R;
 
 public class CustomTextField extends TextInputEditText {
 

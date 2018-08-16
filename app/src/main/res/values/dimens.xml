@@ -2,7 +2,7 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="item_margin">16dp</dimen>
-    <dimen name="short_margin">8dp</dimen>
+    <dimen name="short_place">8dp</dimen>
 
     <dimen name="item_elevation">8dp</dimen>
 

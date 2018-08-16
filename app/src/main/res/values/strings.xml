@@ -19,5 +19,23 @@
     <string name="button_back">Назад</string>
     <string name="button_choose">Выбрать</string>
 
+    <string name="action_register">Зарегистрироваться</string>
+    <string name="action_login">Войти</string>
+    <string name="action_logout">Выйти</string>
+
+    <!-- TO Login page-->
+    <string name="prompt_login">Ваш логин</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="prompt_location">Ваше местоположение</string>
+
+    <string name="action_sign_in">Войти</string>
+    <string name="action_sign_up">Зарегистрироваться</string>
+    <string name="action_restore">Восстановление пароля</string>
+
+    <string name="error_invalid_login">Некорректное имя пользователя!</string>
+    <string name="error_invalid_password">Пароль слишком короткий!\n(Не менее 6 символов)</string>
+    <string name="error_field_required">Поле обязательно для заполнения</string>
+
+    <string name="like">В избранное</string>
 
 </resources>

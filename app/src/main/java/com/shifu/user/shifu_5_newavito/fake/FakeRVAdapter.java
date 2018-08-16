@@ -1,4 +1,4 @@
-package com.shifu.user.shifu_5_newavito;
+package com.shifu.user.shifu_5_newavito.fake;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
+import com.shifu.user.shifu_5_newavito.R;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +37,7 @@ public class FakeRVAdapter extends RecyclerView.Adapter<FakeRVAdapter.ItemViewHo
         }
     }
 
-    FakeRVAdapter(Context context, List<FakeItemEntry> productList) {
+    public FakeRVAdapter(Context context, List<FakeItemEntry> productList) {
         this.productList = productList;
         Collections.sort(this.productList, new FakeListComparator());
         imageRequester = FakeImageRequester.getInstance(context);

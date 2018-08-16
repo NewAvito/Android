@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/item_margin"
+        android:padding="@dimen/short_place"
         app:layout_constraintTop_toTopOf="parent"
         android:elevation="@dimen/item_elevation"
         android:background="@color/white">
@@ -26,10 +27,11 @@
             android:id="@+id/menuback"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center"
             android:src = "@drawable/icons8_menu_24"
             android:contentDescription="@string/action_menu"
-            android:backgroundTint="@color/white"/>
+            android:background="@color/white"
+            android:padding="@dimen/short_place"/>
 
         <android.support.design.widget.TextInputLayout
             style="@style/Widget.NewAvito.TextInputLayout"
@@ -39,7 +41,7 @@
             android:hint="@string/hint_find"
             android:background="@color/white">
 
-            <com.shifu.user.shifu_5_newavito.CustomTextField
+            <com.shifu.user.shifu_5_newavito.ui.CustomTextField
                 android:id="@+id/textview_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -72,8 +74,10 @@
         android:layout_margin="@dimen/fab_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:srcCompat="@android:drawable/ic_dialog_email"
-        android:visibility="gone"/>
+        app:srcCompat="@drawable/icons8_add_24"
+        app:backgroundTint="@color/colorPrimary"
+        android:tint="@color/white"
+        android:visibility="visible"/>
 
 </android.support.constraint.ConstraintLayout>
 

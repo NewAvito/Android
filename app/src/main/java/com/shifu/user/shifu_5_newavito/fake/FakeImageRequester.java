@@ -1,4 +1,4 @@
-package com.shifu.user.shifu_5_newavito;
+package com.shifu.user.shifu_5_newavito.fake;
 
 import android.content.Context;
 import android.graphics.Bitmap;
