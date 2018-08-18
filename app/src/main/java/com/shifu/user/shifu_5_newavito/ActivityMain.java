@@ -44,17 +44,6 @@ public class ActivityMain extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         rc = new RealmController(this);
-
-//        //myTest
-//        {
-//            Realm realm = Realm.getDefaultInstance();
-//            realm.executeTransaction(trRealm -> {
-//                trRealm.deleteAll();
-//                Author author = trRealm.createObject(Author.class, "Вася");
-//                author.setMobile("89217917922");
-//                author.setLocation("Moscow");
-//            });
-//        }
         new RealmRVAdapter(getApplicationContext(), rc.getBase(Product.class, "date"));
 
         mDrawer = findViewById(R.id.drawer_layout);

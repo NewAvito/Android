@@ -16,12 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.shifu.user.shifu_5_newavito.json.JsonAuthorResponse;
 import com.shifu.user.shifu_5_newavito.model.Author;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,10 +29,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.realm.Realm;
-import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.shifu.user.shifu_5_newavito.AppGlobals.*;
@@ -179,32 +170,18 @@ public class ActivityLogin extends AppCompatActivity {
                                 Realm realm = Realm.getDefaultInstance();
                                 realm.executeTransaction(trRealm -> {
                                     trRealm.where(Author.class).findAll().deleteAllFromRealm();
-                                    Author author = trRealm.createObject(Author.class, name);
+                                    trRealm.createObject(Author.class, name);
                                 });
                                 return 0;
                             })
                             .observeOn(Schedulers.computation())
                             .subscribeOn(Schedulers.io())
-                            .map(i -> {
+                            .concatMap(i -> {
                                 String requestType = (state.get() == REGISTER)?"register":"login";
-                                api.login(requestType, new Author(name, pass));
-                                // TODO myTest
-                                String JsonStr = "{ \"non_field_errors\":[\"Not valid password\"] }";
-                                ResponseBody body = ResponseBody.create(MediaType.parse("application/json;"), JsonStr);
-                                okhttp3.Response response = new okhttp3.Response.Builder()
-                                        .request(new Request.Builder().url("http://localhost/").build())
-                                        .code(400).message("Нет корректного ответа от сервера")
-                                        .body(body)
-                                        .protocol(Protocol.HTTP_1_0)
-                                        .build();
-
-                                Response<JsonAuthorResponse> responseRetrofit = Response.error(400, response.body());
-                                JsonAuthorResponse author = new JsonAuthorResponse(name, pass);
-                                Response<JsonAuthorResponse> responseRetrofit2 = Response.success(author);
-                                return responseRetrofit2;
+                                return api.login(requestType, ApiInterface.format, new Author(name, pass));
                             })
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(this::RegSuccess, this::RegError);
+                            .subscribe(response -> RegSuccess(response), this::RegError);
                 }
                 else if (state.get() == RESTORE){
                     //TODO вызов запроса на восстановление пароля
@@ -213,13 +190,12 @@ public class ActivityLogin extends AppCompatActivity {
     }
 
     private boolean isLoginValid(EditText loginView) {
-        //TODO: validate login
+        //TODO: validate login. М.б. только английскими?
         return true;
     }
 
     private boolean isPasswordValid(EditText passView) {
-        //TODO: validate password
-        return passView.getText().toString().length() > 6;
+        return passView.getText().toString().length() >= 6;
     }
 
     private void showProgress(final boolean show) {
@@ -239,7 +215,7 @@ public class ActivityLogin extends AppCompatActivity {
         finish();
     }
 
-    private void RegSuccess(Response<JsonAuthorResponse> response){
+    private void RegSuccess(Response<Author> response){
         if (!d.isDisposed()) d.dispose();
         if (response.isSuccessful()) {
             clearState();
@@ -248,39 +224,22 @@ public class ActivityLogin extends AppCompatActivity {
         } else {
             rc.clear(Author.class);
             try {
-                JSONObject jObj = new JSONObject(response.errorBody().string());
-                JSONArray jArr = jObj.getJSONArray("non_field_errors");
-                StringBuilder builder = new StringBuilder();
-                if (jArr == null) {
-                    builder.append("Неизвестная ошибка сервера.");
-                } else {
-                    for (int i=0; i<jArr.length(); i++) {
-                        if (builder.length() > 0) {
-                            builder.append("\n");
-                        }
-
-                        // Особый случай - некорректный пароль
-                        if (state.get() == LOGIN && jArr.get(i).equals("Not valid password")) {
-                            bRestore.setVisibility(View.VISIBLE);
-                        }
-
-                        String next = Errors.get((String) jArr.get(i));
-                        if (next != null) {
-                            builder.append(next);
-                        } else {
-                            builder.append("Неизвестная ошибка: ");
-                            builder.append(jArr.get(i));
-                        }
+                String errorBody = response.errorBody().string();
+                Log.d("Response", errorBody);
+                String init = "Ошибка на сервере";
+                StringBuilder error = new StringBuilder(init);
+                for (String key : Errors.keySet()) {
+                    if (errorBody.contains(key)) {
+                        error.append((error.toString().equals(init))?":\n":"\n");
+                        error.append(Errors.get(key));
                     }
                 }
+                error.append("\nПопробуйте ещё раз");
                 showProgress(false);
-                Toast.makeText(this, builder.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, error.toString(), Toast.LENGTH_LONG).show();
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-
         }
     }
 

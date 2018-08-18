@@ -51,7 +51,4 @@ public class ApiClient {
                 .build()
                 .create(ApiInterface.class);
     }
-
-
-
 }

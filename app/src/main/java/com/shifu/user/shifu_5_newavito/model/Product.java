@@ -5,15 +5,15 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Date;
-
 import io.realm.RealmObject;
-
 
 public class Product extends RealmObject implements MyRealms{
 
     private final static String FIELD_ID = "upid";
 
     //PrimaryKey
+    @SerializedName("id_article")
+    @Expose
     private Long upid;
 
     @SerializedName("date")
@@ -28,7 +28,7 @@ public class Product extends RealmObject implements MyRealms{
     @Expose
     private String title;
 
-    @SerializedName("nameCategory")
+    @SerializedName("category")
     @Expose
     private String nameCategory;
 
@@ -44,7 +44,7 @@ public class Product extends RealmObject implements MyRealms{
     @Expose
     private Long cost;
 
-    @SerializedName("mobile")
+    @SerializedName("numphone")
     @Expose
     private String mobile;
 
@@ -171,6 +171,10 @@ public class Product extends RealmObject implements MyRealms{
 
     @Override
     public String getIdField() {
+        return FIELD_ID;
+    }
+
+    public static String getNetIdField() {
         return FIELD_ID;
     }
 }

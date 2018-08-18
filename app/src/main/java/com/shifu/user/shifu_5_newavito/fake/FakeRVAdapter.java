@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
+import com.shifu.user.shifu_5_newavito.ImageRequester;
 import com.shifu.user.shifu_5_newavito.R;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,7 +20,7 @@ import java.util.List;
 public class FakeRVAdapter extends RecyclerView.Adapter<FakeRVAdapter.ItemViewHolder> {
 
     private List<FakeItemEntry> productList;
-    private FakeImageRequester imageRequester;
+    private ImageRequester imageRequester;
 
      class ItemViewHolder extends RecyclerView.ViewHolder {
 
@@ -39,8 +39,10 @@ public class FakeRVAdapter extends RecyclerView.Adapter<FakeRVAdapter.ItemViewHo
 
     public FakeRVAdapter(Context context, List<FakeItemEntry> productList) {
         this.productList = productList;
-        Collections.sort(this.productList, new FakeListComparator());
-        imageRequester = FakeImageRequester.getInstance(context);
+
+        //myTest
+        //Collections.sort(this.productList, new FakeListComparator());
+        imageRequester = ImageRequester.getInstance(context);
     }
 
 
@@ -54,11 +56,12 @@ public class FakeRVAdapter extends RecyclerView.Adapter<FakeRVAdapter.ItemViewHo
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         if (productList != null && position < productList.size()) {
-            FakeItemEntry product = productList.get(position);
-            holder.productTitle.setText(product.title);
-            holder.productPrice.setText(product.cost);
-            holder.productLocation.setText(product.location);
-            imageRequester.setImageFromUrl(holder.productImage, product.url);
+            //myTest
+//            FakeItemEntry product = productList.get(position);
+//            holder.productTitle.setText(product.title);
+//            holder.productPrice.setText(product.cost);
+//            holder.productLocation.setText(product.location);
+//            imageRequester.setImageFromUrl(holder.productImage, product.url);
         }
     }
 

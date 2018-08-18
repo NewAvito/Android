@@ -11,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
-import com.shifu.user.shifu_5_newavito.fake.FakeImageRequester;
 import com.shifu.user.shifu_5_newavito.model.Product;
 
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +23,7 @@ import io.realm.RealmRecyclerViewAdapter;
 class RealmRVAdapter extends RealmRecyclerViewAdapter<Product, RealmRVAdapter.ViewHolder> {
 
     private final String TAG = "RA";
-    private FakeImageRequester imageRequester;
+    private ImageRequester imageRequester;
 
     private static RealmRVAdapter instance;
     public static RealmRVAdapter getInstance(){
@@ -58,16 +57,17 @@ class RealmRVAdapter extends RealmRecyclerViewAdapter<Product, RealmRVAdapter.Vi
             productTitle.setText((text==null)?"":text);
 
             text = Long.toString(item.getCost());
-            productPrice.setText((text==null)?"":text);
+            productPrice.setText((text==null)?"":text+" руб.");
 
             text = item.getLocation();
             productLocation.setText((text==null)?"":text);
 
-            text = item.getUrl();
-            if (text != null) imageRequester.setImageFromUrl(productImage, text);
+            //TODO myTest
+//            text = item.getUrl();
+//            if (text != null) imageRequester.setImageFromUrl(productImage, text);
 
             Long l = item.getLikes();
-            if (l > 0) {
+            if (l != null && l > 0) {
                 productImage.setImageResource(R.drawable.icons8_like_26);
             } else {
                 productImage.setImageResource(R.drawable.icons8_like_32);
@@ -82,7 +82,7 @@ class RealmRVAdapter extends RealmRecyclerViewAdapter<Product, RealmRVAdapter.Vi
         super(data, true);
         Log.d(TAG, "setDataSize: "+data.size()+" from baseSize: "+RealmController.getInstance().getSize(Product.class));
         setHasStableIds(true);
-        imageRequester = FakeImageRequester.getInstance(context);
+        imageRequester = ImageRequester.getInstance(context);
         instance = this;
     }
 

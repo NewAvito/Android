@@ -1,6 +1,6 @@
 package com.shifu.user.shifu_5_newavito;
 
-class AppGlobals {
+public class AppGlobals {
 
     /*
      * Login states
@@ -14,11 +14,12 @@ class AppGlobals {
      * REST global variables
      */
     static final int timeout = 5;
-    static final String URL = "https://uploader9g.disk.yandex.net:443/upload-target/20180814T054543.540.utd.40ju8as46gc55r2temug13jf8-k9g.2870483/";
+    static final String URL = "http://78.140.221.46/api/";
 
     /*
-     * Date type
+     * Data types
      */
-    static final String strDateFormat = "yyyy-MM-dd HH:mm";
+    static final String strDateFormat = "yyyy-MM-dd";
 
+    public static final String emptyCategory = "Without category";
 }

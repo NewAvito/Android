@@ -21,7 +21,7 @@ public class RealmController {
     private Realm realm;
 
     private static RealmController instance = null;
-    static RealmController getInstance() {
+    public static RealmController getInstance() {
         return instance;
     }
 

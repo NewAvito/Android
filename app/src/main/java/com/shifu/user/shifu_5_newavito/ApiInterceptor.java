@@ -34,20 +34,27 @@ public class ApiInterceptor implements Interceptor {
                 Buffer buffer = source.buffer();
 
                 Log.d("Response", "size: " + buffer.size() + "-byte body");
-                Log.d("Response", "body: " + response.body().string());
                 Log.d("Response", "code: " + response.code());
 
-//                String content;
-//                MediaType contentType = MediaType.parse("application/json;");
-//                ResponseBody body;
-//                if (buffer.size() == 0) {
-//                    System.out.println("Response body is empty");
-//                    content = "[{}]";
-//                    body = ResponseBody.create(contentType, content);
-//                } else {
-//                    body = ResponseBody.create(contentType, response.body().bytes());
+//                switch (response.code()) {
+//                    case 502:
+//                        throw new Exception();
 //                }
-//                response = response.newBuilder().body(body).build();
+
+                String content;
+                MediaType contentType = MediaType.parse("application/json;");
+                ResponseBody body;
+                if (buffer.size() == 0) {
+                    System.out.println("Response body is empty");
+                    content = "[{}]";
+                    body = ResponseBody.create(contentType, content);
+                } else {
+                    body = ResponseBody.create(contentType, response.body().bytes());
+
+                    //выяснить, что точно делает string? почему после него весь body очищается?
+                    //Log.d("Response", "body: " + body.string());
+                }
+                response = response.newBuilder().body(body).build();
 
             }
             return response;

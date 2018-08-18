@@ -1,10 +1,12 @@
 package com.shifu.user.shifu_5_newavito;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,13 +16,24 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
-import com.shifu.user.shifu_5_newavito.fake.FakeItemEntry;
-import com.shifu.user.shifu_5_newavito.fake.FakeRVAdapter;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import com.shifu.user.shifu_5_newavito.model.Category;
+import com.shifu.user.shifu_5_newavito.model.Product;
 import com.shifu.user.shifu_5_newavito.ui.CustomFocusChangeListener;
 import com.shifu.user.shifu_5_newavito.ui.CustomTextField;
 import com.shifu.user.shifu_5_newavito.ui.CustomTextWatcher;
 
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
+import io.realm.Realm;
 
 import static com.shifu.user.shifu_5_newavito.ui.CustomDialogCall.showRadioButtonDialog;
 
@@ -34,10 +47,19 @@ public class ListFragment extends android.support.v4.app.Fragment {
     private ImageButton imageMenuBackButton;
     private InputMethodManager imm;
     private FloatingActionButton fab;
+    RecyclerView recyclerView;
+
+    private ProgressBar progress;
+    private NestedScrollView scrollView;
 
 
+    private ApiInterface api = ApiClient.getInstance().getApi();
+    private static RealmController rc = RealmController.getInstance();
+    private static RealmRVAdapter ra = RealmRVAdapter.getInstance();
 
     private CompositeDisposable uiDisposables = new CompositeDisposable();
+
+    PublishSubject<Boolean> publishCategories;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -48,13 +70,23 @@ public class ListFragment extends android.support.v4.app.Fragment {
 
         setUIActions(rootView);
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view);
+        recyclerView = rootView.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        FakeRVAdapter ra = new FakeRVAdapter(getContext(), FakeItemEntry.DatedList(getResources()));
         recyclerView.setAdapter(ra);
+
+        //FakeRVAdapter ra = new FakeRVAdapter(getContext(), FakeItemEntry.DatedList(getResources()));
+        //recyclerView.setAdapter(ra);
+
+        progress = rootView.findViewById(R.id.progress);
+        progress.setVisibility(View.VISIBLE);
+
+        scrollView = rootView.findViewById(R.id.nested_scroll_view);
+        progress.setVisibility(View.GONE);
+
+        getData();
 
         return rootView;
     }
@@ -124,6 +156,74 @@ public class ListFragment extends android.support.v4.app.Fragment {
         editText.setCrossWork(false);
         imageMenuBackButton.setImageResource(R.drawable.icons8_menu_24);
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
+    public void getData() {
+        Disposable d = Flowable.interval(1, TimeUnit.SECONDS)
+                .filter(i -> (i-1)%600 == 0)
+                .onBackpressureLatest()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+
+                /*
+                 * REST GET and load to Realms /category
+                 */
+                .flatMap(i -> api.getCategories(ApiInterface.format))
+                .doOnError(t -> {t.printStackTrace();})
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .map(listResponse -> {
+                    Realm realm = Realm.getDefaultInstance();
+                    if (listResponse.body() != null && listResponse.body().size() > realm.where(Category.class).findAll().size()) {
+                        realm.executeTransactionAsync(trRealm -> {
+                            trRealm.where(Category.class).findAll().deleteAllFromRealm();
+                            trRealm.copyToRealm(listResponse.body());
+                        });
+                    }
+                    return false;
+                })
+
+                /*
+                 *  REST GET and load to Realms /article
+                 */
+                .observeOn(Schedulers.io())
+                .concatMap(b -> api.getProducts(ApiInterface.format))
+                .observeOn(Schedulers.computation())
+                .map(products -> {
+                    Realm realm = Realm.getDefaultInstance();
+                    if (products.body() != null && products.body().size() > 0) {
+                        realm.executeTransactionAsync(trRealm -> {
+                            for (Product obj: products.body()) {
+                                Product productIn = trRealm.where(Product.class).equalTo(Product.getNetIdField(), obj.getUpid()).findFirst();
+                                if (productIn == null) {
+                                    trRealm.copyToRealm(products.body());
+                                }
+                            }
+                        });
+                    }
+                    return products;
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(products -> {
+                   if (products.code() == 520) {
+                       Toast.makeText(getContext(), products.message(), Toast.LENGTH_LONG).show();
+                   } else {
+                       showProgress(false);
+                       ra.notifyDataSetChanged();
+                   }
+                });
+
+
+    }
+
+    private void showProgress(final boolean show) {
+        View view = getActivity().getCurrentFocus();
+        if (view == null) view = new View(getActivity());
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+        scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
+        progress.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
 //    @Override

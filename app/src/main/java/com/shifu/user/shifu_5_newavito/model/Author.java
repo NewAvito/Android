@@ -6,6 +6,9 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
+import java.util.Random;
+import java.util.UUID;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -24,7 +27,7 @@ public class Author extends RealmObject implements MyRealms{
 
     @SerializedName("mobile")
     @Expose
-    private String mobile;
+    private Integer mobile;
 
     @SerializedName("location")
     @Expose
@@ -36,13 +39,10 @@ public class Author extends RealmObject implements MyRealms{
     public Author(String username, String password){
         this.username = username;
         this.password = password;
-    }
 
-    public Author(String username, String password, String mobile, String location){
-        this.username = username;
-        this.password = password;
-        this.mobile = mobile;
-        this.location = location;
+        //TODO myTest - пока эти поля не убраны на беке
+        this.mobile = new Random().nextInt();
+        this.location = UUID.randomUUID().toString().substring(0, 30);
     }
 
     public String getUsername() {
@@ -59,22 +59,6 @@ public class Author extends RealmObject implements MyRealms{
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 
     @Override

@@ -24,34 +24,22 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.shifu.user.shifu_5_newavito.json.JsonAuthorResponse;
 import com.shifu.user.shifu_5_newavito.model.Author;
+import com.shifu.user.shifu_5_newavito.model.Empty;
 import com.shifu.user.shifu_5_newavito.model.Product;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import io.reactivex.Flowable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.realm.Realm;
-import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.shifu.user.shifu_5_newavito.ui.CustomDialogCall.showRadioButtonDialog;
@@ -198,25 +186,11 @@ public class ActivityAddProduct extends AppCompatActivity {
             })
                     .observeOn(Schedulers.computation())
                     .subscribeOn(Schedulers.io())
-                    .map(product -> {
-//                        api.pushProduct(product);
-                        // TODO myTest
-                        String JsonStr = "{ \"non_field_errors\":[\"Not valid password\"] }";
-                        ResponseBody body = ResponseBody.create(MediaType.parse("application/json;"), JsonStr);
-                        okhttp3.Response response = new okhttp3.Response.Builder()
-                                .request(new Request.Builder().url("http://localhost/").build())
-                                .code(400).message("Нет корректного ответа от сервера")
-                                .body(body)
-                                .protocol(Protocol.HTTP_1_0)
-                                .build();
-
-                        Response <JsonAuthorResponse> responseRetrofit = Response.error(400, response.body());
-                        JsonAuthorResponse author = new JsonAuthorResponse();
-                        Response <JsonAuthorResponse> responseRetrofit2 = Response.success(author);
-                        return responseRetrofit;
-                    })
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::RegSuccess, this::RegError);
+                    .concatMap(product -> api.pushProduct(ApiInterface.contentType, product))
+                    // TODO когда будет бекенд
+//                    .observeOn(Schedulers.computation())
+//                    .map()
+                    .subscribe(response -> RegSuccess(response), this::RegError);
         }
     }
 
@@ -251,46 +225,13 @@ public class ActivityAddProduct extends AppCompatActivity {
         finish();
     }
 
-    private void RegSuccess(Response<JsonAuthorResponse> response){
+    private void RegSuccess(Response<Empty> response){
         if (!d.isDisposed()) d.dispose();
         if (response.isSuccessful()) {
             setResult(RESULT_OK, getIntent());
             finish();
         } else {
-//            rc.clear(Author.class);
-//            try {
-//                JSONObject jObj = new JSONObject(response.errorBody().string());
-//                JSONArray jArr = jObj.getJSONArray("non_field_errors");
-//                StringBuilder builder = new StringBuilder();
-//                if (jArr == null) {
-//                    builder.append("Неизвестная ошибка сервера.");
-//                } else {
-//                    for (int i=0; i<jArr.length(); i++) {
-//                        if (builder.length() > 0) {
-//                            builder.append("\n");
-//                        }
-//
-//                        // Особый случай - некорректный пароль
-//                        if (jArr.get(i).equals("Not valid password")) {
-////                            bRestore.setVisibility(View.VISIBLE);
-//                        }
-//
-//                        String next = Errors.get((String) jArr.get(i));
-//                        if (next != null) {
-//                            builder.append(next);
-//                        } else {
-//                            builder.append("Неизвестная ошибка: ");
-//                            builder.append(jArr.get(i));
-//                        }
-//                    }
-//                }
-//                showProgress(false);
-//                Toast.makeText(this, builder.toString(), Toast.LENGTH_LONG).show();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
+            //TODO обработать возможные ошибки сервера
         }
     }
 

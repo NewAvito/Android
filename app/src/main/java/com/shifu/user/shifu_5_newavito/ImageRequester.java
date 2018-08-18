@@ -1,4 +1,4 @@
-package com.shifu.user.shifu_5_newavito.fake;
+package com.shifu.user.shifu_5_newavito;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,14 +13,14 @@ import com.android.volley.toolbox.Volley;
 /**
  * Class that handles image requests using Volley.
  */
-public class FakeImageRequester {
-    private static FakeImageRequester instance = null;
+public class ImageRequester {
+    private static ImageRequester instance = null;
     private final Context context;
     private final RequestQueue requestQueue;
     private final ImageLoader imageLoader;
     private final int maxByteSize;
 
-    private FakeImageRequester(Context context) {
+    private ImageRequester(Context context) {
         this.context = context;
         this.requestQueue = Volley.newRequestQueue(context);
         this.requestQueue.start();
@@ -52,9 +52,9 @@ public class FakeImageRequester {
     /**
      * Get a static instance of ImageRequester
      */
-    public static FakeImageRequester getInstance(Context context) {
+    public static ImageRequester getInstance(Context context) {
         if (instance == null) {
-            instance = new FakeImageRequester(context);
+            instance = new ImageRequester(context);
         }
         return instance;
     }
