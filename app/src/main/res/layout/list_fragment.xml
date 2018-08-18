@@ -16,7 +16,8 @@
         android:padding="@dimen/short_place"
         app:layout_constraintTop_toTopOf="parent"
         android:elevation="@dimen/item_elevation"
-        android:background="@color/white">
+        android:background="@color/white"
+        style="@style/Widget.NewAvito.CardView">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,6 +47,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
+                android:imeOptions="actionSearch"
                 android:maxLines="1"
                 android:background="@color/white"/>
 

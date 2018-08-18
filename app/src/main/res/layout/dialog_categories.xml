@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:style="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="@dimen/item_margin"
     android:layout_gravity="center">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/item_margin"
         android:gravity="center"
         android:text="@string/categories"
-        android:textAppearance="?attr/textAppearanceHeadline4"/>
+        android:textColor="@color/colorAccent"
+        android:textAppearance="?attr/textAppearanceHeadline6"/>
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/item_margin"
-        android:layout_marginStart="@dimen/item_margin">
+        android:layout_height="match_parent">
         <RadioGroup
             android:id="@+id/radio_group"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/item_margin"
+            android:layout_margin="@dimen/short_place"
             android:orientation="vertical">
         </RadioGroup>
     </android.support.v4.widget.NestedScrollView>
@@ -32,9 +30,10 @@
     <android.support.design.button.MaterialButton
         android:id="@+id/button_choose"
         android:layout_gravity="center_horizontal"
-        style="@style/Widget.MaterialComponents.Button"
+        style="@style/Theme.NewAvito.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/button_choose" />
+        android:text="@string/button_choose"
+        />
 
 </LinearLayout>

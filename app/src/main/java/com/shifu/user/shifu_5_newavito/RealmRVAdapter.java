@@ -57,7 +57,7 @@ class RealmRVAdapter extends RealmRecyclerViewAdapter<Product, RealmRVAdapter.Vi
             String text = item.getTitle();
             productTitle.setText((text==null)?"":text);
 
-            text = item.getCost();
+            text = Long.toString(item.getCost());
             productPrice.setText((text==null)?"":text);
 
             text = item.getLocation();

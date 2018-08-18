@@ -16,6 +16,8 @@ public class Product extends RealmObject implements MyRealms{
     //PrimaryKey
     private Long upid;
 
+    @SerializedName("date")
+    @Expose
     private Date date;
 
     @SerializedName("username")
@@ -26,17 +28,13 @@ public class Product extends RealmObject implements MyRealms{
     @Expose
     private String title;
 
-    @SerializedName("mobile")
+    @SerializedName("nameCategory")
     @Expose
-    private String mobile;
+    private String nameCategory;
 
     @SerializedName("url")
     @Expose
     private String url;
-
-    @SerializedName("nameCategory")
-    @Expose
-    private String nameCategory;
 
     @SerializedName("description")
     @Expose
@@ -44,7 +42,11 @@ public class Product extends RealmObject implements MyRealms{
 
     @SerializedName("cost")
     @Expose
-    private String cost;
+    private Long cost;
+
+    @SerializedName("mobile")
+    @Expose
+    private String mobile;
 
     @SerializedName("location")
     @Expose
@@ -57,7 +59,7 @@ public class Product extends RealmObject implements MyRealms{
     public Product() {
     }
 
-    public Product(String username, String title, String mobile, String nameCategory, String description, String cost, String location) {
+    public Product(String username, String title, String mobile, String nameCategory, String description, Long cost, String location) {
         super();
         this.username = username;
         this.title = title;
@@ -119,11 +121,11 @@ public class Product extends RealmObject implements MyRealms{
         this.description = description;
     }
 
-    public String getCost() {
+    public Long getCost() {
         return cost;
     }
 
-    public void setCost(String cost) {
+    public void setCost(Long cost) {
         this.cost = cost;
     }
 

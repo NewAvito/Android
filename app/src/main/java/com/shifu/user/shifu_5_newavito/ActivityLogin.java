@@ -102,7 +102,7 @@ public class ActivityLogin extends AppCompatActivity {
         bRestore.setOnClickListener(view -> {
             if (bRestore.getText().toString().equals(getResources().getString(R.string.action_restore))) {
                 setState(RESTORE);
-                bRestore.setText(getResources().getString(R.string.button_back));
+                bRestore.setText(getResources().getString(R.string.action_back));
             } else {
                 setState(LOGIN);
                 bRestore.setText(getResources().getString(R.string.action_restore));
@@ -201,7 +201,7 @@ public class ActivityLogin extends AppCompatActivity {
                                 Response<JsonAuthorResponse> responseRetrofit = Response.error(400, response.body());
                                 JsonAuthorResponse author = new JsonAuthorResponse(name, pass);
                                 Response<JsonAuthorResponse> responseRetrofit2 = Response.success(author);
-                                return responseRetrofit;
+                                return responseRetrofit2;
                             })
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(this::RegSuccess, this::RegError);

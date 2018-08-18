@@ -15,10 +15,6 @@ public class CustomFocusChangeListener implements View.OnFocusChangeListener{
     private InputMethodManager imm;
     private PublishSubject<Boolean> publishSubject = PublishSubject.create();
 
-//    public CustomFocusChangeListener(){
-//        throw new NullPointerException();
-//    }
-
     public CustomFocusChangeListener(CustomTextField editText, ImageButton imageButton, InputMethodManager imm) {
         this.editText = editText;
         this.imageMenuButton = imageButton;

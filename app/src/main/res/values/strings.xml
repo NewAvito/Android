@@ -16,7 +16,7 @@
 
     <string name="categories">Категории</string>
 
-    <string name="button_back">Назад</string>
+    <string name="action_back">Назад</string>
     <string name="button_choose">Выбрать</string>
 
     <string name="action_register">Зарегистрироваться</string>
@@ -24,8 +24,8 @@
     <string name="action_logout">Выйти</string>
 
     <!-- TO Login page-->
-    <string name="prompt_login">Ваш логин</string>
-    <string name="prompt_password">Пароль</string>
+    <string name="prompt_login">Ваш логин*</string>
+    <string name="prompt_password">Пароль*</string>
     <string name="prompt_location">Ваше местоположение</string>
 
     <string name="action_sign_in">Войти</string>
@@ -37,5 +37,22 @@
     <string name="error_field_required">Поле обязательно для заполнения</string>
 
     <string name="like">В избранное</string>
+
+    <!-- TO AddProduct page-->
+    <string name="product">Товар:</string>
+    <string name="action_category">Выбрать категорию товара</string>
+    <string name="category">Категория:\n%s</string>
+    <string name="category_cansel">Без категории</string>
+    <string name="title">Название*</string>
+    <string name="description">Описание</string>
+    <string name="price">Цена* (в руб.)</string>
+    <string name="action_photo">Выбрать фото товара</string>
+    <string name="contacts">Ваши контакты:</string>
+    <string name="mobile">Телефон*</string>
+    <string name="action_mobile">Использовать номер активной SIM</string>
+    <string name="location">Адрес</string>
+    <string name="action_add">Добавить объявление</string>
+
+    <string name="error_long">Допустимо не более %i символов</string>
 
 </resources>
