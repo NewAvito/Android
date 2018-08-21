@@ -4,8 +4,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-
 import java.util.Random;
 import java.util.UUID;
 
@@ -33,16 +31,21 @@ public class Author extends RealmObject implements MyRealms{
     @Expose
     private String location;
 
+    @SerializedName("answer")
+    @Expose
+    private String answer;
+
 
     public Author() {}
 
-    public Author(String username, String password){
+    public Author(String username, String password, String answer){
         this.username = username;
         this.password = password;
 
         //TODO myTest - пока эти поля не убраны на беке
         this.mobile = new Random().nextInt();
         this.location = UUID.randomUUID().toString().substring(0, 30);
+        this.answer = answer;
     }
 
     public String getUsername() {

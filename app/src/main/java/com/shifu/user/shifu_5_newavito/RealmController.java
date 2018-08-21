@@ -5,6 +5,7 @@ import android.util.Log;
 
 
 import com.shifu.user.shifu_5_newavito.model.Author;
+import com.shifu.user.shifu_5_newavito.model.Category;
 import com.shifu.user.shifu_5_newavito.model.MyRealms;
 import com.shifu.user.shifu_5_newavito.model.Product;
 
@@ -15,10 +16,11 @@ import io.realm.RealmConfiguration;
 import io.realm.RealmModel;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 public class RealmController {
 
-    private Realm realm;
+    public Realm realm;
 
     private static RealmController instance = null;
     public static RealmController getInstance() {
@@ -34,8 +36,6 @@ public class RealmController {
 
             Realm.setDefaultConfiguration(config);
             realm = Realm.getDefaultInstance();
-            Long size = (Long) realm.where(Product.class).max(getIdField(Product.class));
-            Log.d("Init max: ", (size==null)?"null":Long.toString(size));
             instance = this;
         }
     }
@@ -57,17 +57,13 @@ public class RealmController {
         return realm.where(objClass).count();
     }
 
-    public  String getUsername(){
-        Author item = realm.where(Author.class).findFirst();
-        return (item == null)?"":item.getUsername();
-    }
 
     public <T extends RealmObject> RealmResults<T> getBase(Class<T> objClass, String sortField){
         RealmResults<T> base;
 
         boolean sort = exist(objClass, sortField);
         if (sort){
-            base = realm.where(objClass).sort(sortField).findAll();
+            base = realm.where(objClass).sort(sortField, Sort.DESCENDING).findAll();
         } else {
             base = realm.where(objClass).findAll();
         }
@@ -75,6 +71,21 @@ public class RealmController {
         // Не потокобезопасно! Realms не передаёт свои объекты в другие потоки
         return base;
     }
+
+    public RealmResults<Product> getBaseWithLikes(String sortField){
+        RealmResults<Product> base;
+
+        boolean sort = exist(Product.class, sortField);
+        if (sort){
+            base = realm.where(Product.class).greaterThan("likes", 0).sort(sortField, Sort.DESCENDING).findAll();
+        } else {
+            base = realm.where(Product.class).greaterThan("likes", 0).findAll();
+        }
+
+        // Не потокобезопасно! Realms не передаёт свои объекты в другие потоки
+        return base;
+    }
+
 
     private <T extends RealmObject> boolean exist(Class<T> objClass, String checkField) {
         boolean check = false;
@@ -122,20 +133,31 @@ public class RealmController {
         return (out == null) ? null : realm.copyFromRealm(out);
     }
 
+    public String getUsername(){
+        Author user = realm.where(Author.class).findFirst();
+        return (user == null)?"":user.getUsername();
+    }
+
     /*
      * Update data functions
      */
-    
+
+    public void updateLike(final Long upid, final Long like) {
+        realm.executeTransaction(trRealm -> {
+            Product item = trRealm.where(Product.class).equalTo(getIdField(Product.class), upid).findFirst();
+            Product newItem;
+            if (item != null) {
+                newItem = trRealm.copyFromRealm(item);
+                trRealm.where(Product.class).equalTo(getIdField(Product.class), upid).findFirst().deleteFromRealm();
+                newItem.setLikes(like);
+                trRealm.copyToRealm(newItem);
+            }
+        });
+    }
 
     /*
      * Delete data functions
      */
-    public void clear() {
-        realm.executeTransactionAsync(realm -> {
-            realm.deleteAll();
-        });
-    }
-
     public<T extends RealmObject> void clear(Class<T> objClass) {
         if (objClass != null) {
             realm.executeTransactionAsync(realm -> realm.where(objClass).findAll().deleteAllFromRealm());

@@ -12,6 +12,7 @@ import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
@@ -19,14 +20,22 @@ import okio.BufferedSource;
 import retrofit2.HttpException;
 
 public class ApiInterceptor implements Interceptor {
+
     @Override
     public Response intercept(@NonNull Chain chain) {
         try {
             Request request = chain.request();
             Response response = chain.proceed(request);
             Log.d("Request: ", request.url().toString());
-            Log.d("Request headers: ", request.headers().toString());
 
+            //TODO myTest
+            if (request.body() != null) {
+                final Buffer requestBuffer = new Buffer();
+                request.body().writeTo(requestBuffer);
+                Log.v("Request: ", "Body: " + requestBuffer.clone().readUtf8());
+            }
+
+            Log.d("Request headers: ", request.headers().toString());
             // Обработка путого запроса (самостоятельно retrofit обрабатывает некорректно - нужен json)
             if (response.body() != null) {
                 BufferedSource source = response.body().source();
@@ -36,6 +45,7 @@ public class ApiInterceptor implements Interceptor {
                 Log.d("Response", "size: " + buffer.size() + "-byte body");
                 Log.d("Response", "code: " + response.code());
 
+
 //                switch (response.code()) {
 //                    case 502:
 //                        throw new Exception();
@@ -44,18 +54,25 @@ public class ApiInterceptor implements Interceptor {
                 String content;
                 MediaType contentType = MediaType.parse("application/json;");
                 ResponseBody body;
+
                 if (buffer.size() == 0) {
                     System.out.println("Response body is empty");
                     content = "[{}]";
                     body = ResponseBody.create(contentType, content);
                 } else {
+                    String veryLongResponse = buffer.clone().readUtf8();
                     body = ResponseBody.create(contentType, response.body().bytes());
 
-                    //выяснить, что точно делает string? почему после него весь body очищается?
-                    //Log.d("Response", "body: " + body.string());
+//                    //TODO myTest
+//                    int maxLogSize = 1000;
+//                    for(int i = 0; i <=veryLongResponse.length() / maxLogSize; i++) {
+//                        int start = i * maxLogSize;
+//                        int end = (i+1) * maxLogSize;
+//                        end = end > veryLongResponse.length() ? veryLongResponse.length() : end;
+//                        Log.v("Response", veryLongResponse.substring(start, end));
+//                    }
                 }
                 response = response.newBuilder().body(body).build();
-
             }
             return response;
         } catch (Exception e) {
@@ -81,7 +98,11 @@ public class ApiInterceptor implements Interceptor {
             Log.d(TAG, "IOException");
             e.printStackTrace();
         } else {
-            Log.d(TAG, e.getMessage());
+            if (e.getMessage() != null) {
+                Log.d(TAG, e.getMessage());
+            } else {
+                Log.d(TAG, e.toString());
+            }
         }
     }
 

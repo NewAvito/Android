@@ -24,15 +24,20 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.shifu.user.shifu_5_newavito.model.Author;
-import com.shifu.user.shifu_5_newavito.model.Empty;
+import com.shifu.user.shifu_5_newavito.json.JResponsePushProduct;
 import com.shifu.user.shifu_5_newavito.model.Product;
 
 import java.io.File;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import io.reactivex.Flowable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -42,18 +47,11 @@ import io.reactivex.subjects.PublishSubject;
 import io.realm.Realm;
 import retrofit2.Response;
 
+import static com.shifu.user.shifu_5_newavito.ActivityMain.mAuth;
 import static com.shifu.user.shifu_5_newavito.ui.CustomDialogCall.showRadioButtonDialog;
 import static com.shifu.user.shifu_5_newavito.RealmController.getIdField;
 
 public class ActivityAddProduct extends AppCompatActivity {
-
-    private static final Map<String, String> Errors=new HashMap<>();
-    static
-    {
-        Errors.put("A user with that username already exists.", "Такой пользователь уже существует!");
-        Errors.put("Not valid username", "Пользователь не существует!");
-        Errors.put("Not valid password", "Пароль некорректен!");
-    }
 
     private RealmController rc = RealmController.getInstance();
     private ApiInterface api = ApiClient.getInstance().getApi();
@@ -62,40 +60,20 @@ public class ActivityAddProduct extends AppCompatActivity {
     private View vProgress;
     private LinearLayout vForm;
 
-    private EditText vTitle;
-    private TextView vCategory;
+    private EditText vTitle, vDescription, vPrice, vMobile, vLocation;
+    private TextView vCategory, vPhotoText;
     private String category;
-    private Button bCategory;
-    private EditText vDescription;
-    private EditText vPrice;
     private ImageView vPhoto;
-    private TextView vPhotoText;
-
-    private Switch sMobile;
-    private EditText vMobile;
-    private String mobile;
-
-    private EditText vLocation;
-    private Button bAction;
 
     private Integer RESULT_LOAD_IMAGE;
+    private Uri imgUri;
 
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static final HashMap<Integer, String[]> PERMISSIONS = new HashMap <>();
-    static {
-        PERMISSIONS.put(REQUEST_EXTERNAL_STORAGE, new String[] {
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-        });
-    }
-
-    private File imgFile;
+    private Boolean isExit = false;
 
 
     // RxJava
     CompositeDisposable cd = new CompositeDisposable();
     Disposable d;
-    PublishSubject<Response<Author>> source = PublishSubject.create();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,31 +93,28 @@ public class ActivityAddProduct extends AppCompatActivity {
         vLocation = findViewById(R.id.location);
 
         vCategory = findViewById(R.id.category);
-        category = getResources().getString(R.string.category_cansel);
+        category = AppGlobals.emptyCategory;
         vCategory.setText(getResources().getString(R.string.category, category));
-        bCategory = findViewById(R.id.button_category);
-        bCategory.setOnClickListener(view -> cd.add(showRadioButtonDialog(this, getResources())
+        Button bCategory = findViewById(R.id.button_category);
+        bCategory.setOnClickListener(view -> cd.add(showRadioButtonDialog(this)
                 .subscribe(msg -> {
                     Log.d("Dialog", "Selected: " + msg);
-                    vCategory.setText(getResources().getString(R.string.category, msg));
-                    category = msg;
+                    if (!msg.equals("-1")) {
+                        vCategory.setText(getResources().getString(R.string.category, msg));
+                        category = msg;
+                    }
                 })));
 
         vPhoto = findViewById(R.id.photo);
-        vPhoto.setOnClickListener(view -> {
-            Log.d("Photo", "click");
-            verifyStoragePermissionsAndRequest(this, REQUEST_EXTERNAL_STORAGE);
-        });
+        vPhoto.setOnClickListener(view -> verifyStoragePermissionsAndRequest());
+
         vPhotoText = findViewById(R.id.photo_text);
-        vPhotoText.setOnClickListener(view -> {
-            Log.d("PhotoText", "click");
-            verifyStoragePermissionsAndRequest(this, REQUEST_EXTERNAL_STORAGE);
-        });
+        vPhotoText.setOnClickListener(view -> verifyStoragePermissionsAndRequest());
 
         vMobile = findViewById(R.id.mobile);
         vLocation = findViewById(R.id.location);
 
-        bAction = findViewById(R.id.action_button);
+        Button bAction = findViewById(R.id.action_button);
         bAction.setOnClickListener(view -> attemptSend());
     }
 
@@ -163,34 +138,22 @@ public class ActivityAddProduct extends AppCompatActivity {
             focusView.requestFocus();
         } else {
             showProgress(true);
-            final Long currentProdId = rc.newProductId();
-            d = Flowable.fromCallable(() -> {
-                Realm realm = Realm.getDefaultInstance();
-                realm.executeTransaction(trRealm -> {
-                    Product product = trRealm.createObject(Product.class);
-                    product.setUpid(currentProdId);
-                    product.setDate(new Date());
-                    product.setUsername(trRealm.where(Author.class).findFirst().getUsername());
-                    product.setTitle(vTitle.getText().toString());
-                    product.setNameCategory(category);
-                    product.setDescription(vDescription.getText().toString());
-                    product.setCost(Long.parseLong(vPrice.getText().toString()));
-                    product.setMobile(vMobile.getText().toString());
-                    product.setLocation(vLocation.getText().toString());
-                });
-                return realm.copyFromRealm(
-                        realm
-                        .where(Product.class)
-                        .equalTo(getIdField(Product.class), currentProdId)
-                        .findFirst());
-            })
-                    .observeOn(Schedulers.computation())
-                    .subscribeOn(Schedulers.io())
-                    .concatMap(product -> api.pushProduct(ApiInterface.contentType, product))
-                    // TODO когда будет бекенд
-//                    .observeOn(Schedulers.computation())
-//                    .map()
-                    .subscribe(response -> RegSuccess(response), this::RegError);
+
+            if (imgUri != null) {
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    uploadImageToFirebase(imgUri);
+                } else {
+                    mAuth.signInAnonymously()
+                            .addOnSuccessListener(this, authResult -> uploadImageToFirebase(imgUri))
+                            .addOnFailureListener(this, e -> {
+                                Log.e("Firebase", "signInAnonymously:FAILURE\n", e);
+                                loadImageFailure();
+                            });
+                }
+            } else {
+                sendProduct();
+            }
         }
     }
 
@@ -210,72 +173,26 @@ public class ActivityAddProduct extends AppCompatActivity {
         return false;
     }
 
-    private void showProgress(final boolean show) {
-        View view = this.getCurrentFocus();
-        if (view == null) view = new View(this);
-        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
-        vForm.setVisibility(show ? View.GONE : View.VISIBLE);
-        vProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public void onBackPressed() {
-        finish();
-    }
-
-    private void RegSuccess(Response<Empty> response){
-        if (!d.isDisposed()) d.dispose();
-        if (response.isSuccessful()) {
-            setResult(RESULT_OK, getIntent());
-            finish();
-        } else {
-            //TODO обработать возможные ошибки сервера
-        }
-    }
-
-    private void RegError(Throwable t) {
-        if (!d.isDisposed()) d.dispose();
-        rc.clear(Author.class);
-        Toast.makeText(this, "Ошибка соединения с сервером: "+t.toString(), Toast.LENGTH_LONG).show();
-        t.printStackTrace();
-    }
 
     /*
-     * Load image
+     * Load image from phone
      * verifyStoragePermissionsAndRequest -> onRequestPermissionsResult -> onActivityResult
      */
 
-    public void verifyStoragePermissionsAndRequest(Activity activity, Integer requestType) {
-
-        String[] permissions = PERMISSIONS.get(requestType);
-        if (permissions != null) {
-
-            int permission = ActivityCompat.checkSelfPermission(activity, permissions[0]);
-
-            if (permission != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                        activity,
-                        permissions,
-                        requestType
-                );
-            } else {
-                if (requestType == REQUEST_EXTERNAL_STORAGE) {
-                    loadImage();
-                }
-            }
+    public void verifyStoragePermissionsAndRequest() {
+        String[] permissions = { Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE };
+        int permission = ActivityCompat.checkSelfPermission(this, permissions[0]);
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, permissions, 0);
         } else {
-            Log.d("getPermissions", "unknown request");
+            loadImage();
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (requestCode == REQUEST_EXTERNAL_STORAGE) {
+        if (requestCode ==0 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 loadImage();
-            }
         }
     }
 
@@ -290,46 +207,151 @@ public class ActivityAddProduct extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK) {
-
             vPhotoText.setVisibility(View.GONE);
 
-            String path = getRealPathFromURI(data.getData());
-            imgFile = new File(path);
+            String path;
+            Cursor cursor = this.getContentResolver().query(data.getData(), null, null, null, null);
 
-            Log.d("Image","Path: "+path);
-            Log.d("Image","Length: "+imgFile.length());
-
-            if(imgFile.exists()) {
-                Log.d("Image", "loading");
-                vPhoto.setImageBitmap(BitmapFactory.decodeFile(path));
+            if (cursor == null) {
+                path = data.getData().getPath();
+            } else {
+                cursor.moveToFirst();
+                int column_index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                path = cursor.getString(column_index);
+                cursor.close();
             }
 
-//            RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-//            MultipartBody.Part filePart = MultipartBody.Part.createFormData("picture",file.getName(),requestFile);
-//            try {
-//                Log.d("File part", "Content-Length: " + filePart.body().contentLength());
-//                Log.d("File part", "Content-Type: " + filePart.body().contentType());
-//            } catch (IOException e) {
-//                Log.d("File part", "Content-Length -> IOException");
-//                e.printStackTrace();
-//            }
-//
-        }
+            File imgFile = new File(path);
+            if(imgFile.exists()) {
+                vPhoto.setImageBitmap(BitmapFactory.decodeFile(path));
+                imgUri = data.getData();
+            }
+            }
     }
 
-    public String getRealPathFromURI(Uri contentUri) {
+    /*
+     * Upload image to Firebase
+     */
 
-        String result;
-        Cursor cursor = this.getContentResolver().query(contentUri, null, null, null, null);
-        if (cursor == null) {
-            result = contentUri.getPath();
+    private void uploadImageToFirebase(Uri file){
+
+        String pathToFile = "images/"+UUID.randomUUID().toString()+".jpg";
+        StorageReference imagesRef = FirebaseStorage
+                .getInstance()
+                .getReference()
+                .child(pathToFile);
+
+        UploadTask uploadTask = imagesRef.putFile(file);
+        Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+            if (!task.isSuccessful()) loadImageFailure();
+
+            return imagesRef.getDownloadUrl();
+        }).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                imgUri = task.getResult();
+                Log.d("Firebase", "Upload uri: "+imgUri);
+                sendProduct();
+            } else loadImageFailure();
+        });
+    }
+
+    private void loadImageFailure(){
+        Toast.makeText(this, "Ошибка загрузки картинки", Toast.LENGTH_LONG).show();
+    }
+
+    private void sendProduct(){
+        final Long currentProdId = rc.newProductId();
+
+        d = Flowable.fromCallable(() -> {
+            Realm realm = Realm.getDefaultInstance();
+            realm.executeTransaction(trRealm -> {
+                Product product = new Product(
+                        currentProdId,
+                        trRealm.where(Author.class).findFirst().getUsername(),
+                        vTitle.getText().toString(),
+                        vMobile.getText().toString(),
+                        category,
+                        vDescription.getText().toString(),
+                        Long.parseLong(vPrice.getText().toString()),
+                        vLocation.getText().toString(),
+                        imgUri.toString()
+                );
+                trRealm.copyToRealm(product);
+            });
+            return realm.copyFromRealm(
+                    realm
+                            .where(Product.class)
+                            .equalTo(getIdField(Product.class), currentProdId)
+                            .findFirst());
+        })
+                .observeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.io())
+                .concatMap(product -> api.pushProduct(ApiInterface.contentType, product))
+                .observeOn(Schedulers.computation())
+                .map(response -> {
+                    Realm realm = Realm.getDefaultInstance();
+                    if (response.body() != null && response.body().getAnswer() != null && response.body().getAnswer().equals(AppGlobals.pushAnswer)){
+                        realm.executeTransaction(trRealm -> trRealm.where(Product.class)
+                                .equalTo(getIdField(Product.class), currentProdId)
+                                .findFirst()
+                                .setUpid(response.body().getId_article()));
+                    } else {
+                        realm.executeTransaction(trRealm -> trRealm.where(Product.class)
+                                .equalTo(getIdField(Product.class), currentProdId)
+                                .findFirst()
+                                .deleteFromRealm());
+                    }
+                    return response;
+                })
+                .subscribe(response -> RegSuccess(response), this::RegError);
+
+    }
+
+    private void showProgress(final boolean show) {
+        View view = this.getCurrentFocus();
+        if (view == null) view = new View(this);
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+        vForm.setVisibility(show ? View.GONE : View.VISIBLE);
+        vProgress.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void RegSuccess(Response<JResponsePushProduct> response){
+        if (!d.isDisposed()) d.dispose();
+        if (response.isSuccessful() && response.body().getAnswer().equals(AppGlobals.pushAnswer)) {
+            setResult(RESULT_OK, getIntent());
+            finish();
         } else {
-            cursor.moveToFirst();
-            int column_index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            result = cursor.getString(column_index);
-            cursor.close();
+            showProgress(false);
+            Toast.makeText(this, "Ошибка на сервере, попробуйте ещё раз", Toast.LENGTH_LONG).show();
         }
-        return result;
     }
 
+    private void RegError(Throwable t) {
+        if (!d.isDisposed()) d.dispose();
+        Toast.makeText(this, "Ошибка соединения с сервером: "+t.toString(), Toast.LENGTH_LONG).show();
+        t.printStackTrace();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isExit) {
+            super.onBackPressed();
+            finish();
+        } else {
+            Toast.makeText(this, "Для выхода нажмите ещё раз", Toast.LENGTH_SHORT).show();
+            isExit = true;
+            Thread t = new Thread (() -> {
+                try {
+                    Thread.sleep(3000);
+                    Log.d("Run", "work");
+                    isExit = false;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+            t.start();
+        }
+    }
 }

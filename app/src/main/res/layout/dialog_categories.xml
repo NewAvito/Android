@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/categories"
-        android:textColor="@color/colorAccent"
         android:textAppearance="?attr/textAppearanceHeadline6"/>
 
     <android.support.v4.widget.NestedScrollView
@@ -24,16 +23,21 @@
             android:layout_margin="@dimen/short_place"
             android:orientation="vertical">
         </RadioGroup>
-    </android.support.v4.widget.NestedScrollView>
 
+    </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.button.MaterialButton
         android:id="@+id/button_choose"
         android:layout_gravity="center_horizontal"
-        style="@style/Theme.NewAvito.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/button_choose"
-        />
+        android:text="@string/button_choose" />
+
+    <android.support.design.button.MaterialButton
+        android:id="@+id/button_cansel"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_cansel" />
 
 </LinearLayout>

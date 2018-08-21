@@ -178,7 +178,8 @@ public class ActivityLogin extends AppCompatActivity {
                             .subscribeOn(Schedulers.io())
                             .concatMap(i -> {
                                 String requestType = (state.get() == REGISTER)?"register":"login";
-                                return api.login(requestType, ApiInterface.format, new Author(name, pass));
+                                String answer="secret";
+                                return api.login(requestType, new Author(name, pass, answer));
                             })
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(response -> RegSuccess(response), this::RegError);

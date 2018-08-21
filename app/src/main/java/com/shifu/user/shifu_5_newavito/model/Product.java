@@ -30,7 +30,7 @@ public class Product extends RealmObject implements MyRealms{
 
     @SerializedName("category")
     @Expose
-    private String nameCategory;
+    private String category;
 
     @SerializedName("url")
     @Expose
@@ -52,22 +52,26 @@ public class Product extends RealmObject implements MyRealms{
     @Expose
     private String location;
 
-    @SerializedName("likes")
+    @SerializedName("like")
     @Expose
     private Long likes;
 
     public Product() {
     }
 
-    public Product(String username, String title, String mobile, String nameCategory, String description, Long cost, String location) {
+    public Product(Long upid, String username, String title, String mobile, String category, String description, Long cost, String location, String url) {
         super();
+        this.upid = upid;
+        this.date = new Date();
         this.username = username;
         this.title = title;
         this.mobile = mobile;
-        this.nameCategory = nameCategory;
+        this.category = category;
         this.description = description;
         this.cost = cost;
         this.location = location;
+        this.likes = 0L;
+        this.url = url;
     }
 
     @Override
@@ -75,7 +79,7 @@ public class Product extends RealmObject implements MyRealms{
         return new ToStringBuilder(this).append("username", username)
                 .append("title", title)
                 .append("mobile", mobile)
-                .append("nameCategory", nameCategory)
+                .append("category", category)
                 .append("description", description)
                 .append("cost", cost)
                 .append("location", location).toString();
@@ -105,12 +109,12 @@ public class Product extends RealmObject implements MyRealms{
         this.mobile = mobile;
     }
 
-    public String getNameCategory() {
-        return nameCategory;
+    public String getCategory() {
+        return category;
     }
 
-    public void setNameCategory(String nameCategory) {
-        this.nameCategory = nameCategory;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getDescription() {

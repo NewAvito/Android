@@ -15,9 +15,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.shifu.user.shifu_5_newavito.model.Author;
 import com.shifu.user.shifu_5_newavito.model.Product;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 
 import static com.shifu.user.shifu_5_newavito.AppGlobals.*;
@@ -35,16 +38,21 @@ public class ActivityMain extends AppCompatActivity {
 
     private ListFragment lf;
     private RealmController rc;
+    private RealmRVAdapter ra;
 
     private Boolean isExit = false;
+
+    public static FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mAuth = FirebaseAuth.getInstance();
+
         rc = new RealmController(this);
-        new RealmRVAdapter(getApplicationContext(), rc.getBase(Product.class, "date"));
+        ra = new RealmRVAdapter(getApplicationContext(), rc.getBase(Product.class, "id_article"), this);
 
         mDrawer = findViewById(R.id.drawer_layout);
 
@@ -73,17 +81,43 @@ public class ActivityMain extends AppCompatActivity {
                         Menu menu = nvDrawer.getMenu();
                         menu.findItem(R.id.menu_item_register).setVisible(true);
                         menu.findItem(R.id.menu_item_login).setTitle(R.string.action_login);
+//                        menu.findItem(R.id.menu_item_favourites).setVisible(false);
                         lf.setFBState(false);
+//                        Disposable d = lf.getProductsResult()
+//                                .subscribe(success -> lf.showProducts(success));
+
                     } else {
                         intent.putExtra("requestCode", LOGIN);
                         startActivityForResult(intent, LOGIN);
                     }
                     break;
+//                case R.id.menu_item_update:
+//                    rc.clear(Product.class);
+//                    lf.chosenCategory = null;
+//                    lf.lastArticleId = null;
+//                    lf.editText.clearState();
+//
+//                    lf.getCategories()
+//                            .concatMap(b -> lf.getProductsResult())
+//                            .subscribe(success -> lf.showProducts(success));
+//
+//                    break;
+//                case R.id.menu_item_favourites:
+//                    Menu menu = nvDrawer.getMenu();
+//                    MenuItem item = menu.findItem(R.id.menu_item_favourites);
+//                    if (item.getTitle().equals(getResources().getString(R.string.favourites))) {
+//                        ra.setData(rc.getBaseWithLikes(Product.getNetIdField()));
+//                        item.setTitle(getResources().getString(R.string.all));
+//                    } else {
+//                        ra.setData(rc.getBase(Product.class, Product.getNetIdField()));
+//                        item.setTitle(getResources().getString(R.string.favourites));
+//                    }
             }
             return true;
         });
 
     }
+
 
     @Override
     protected void onStart(){
@@ -91,20 +125,33 @@ public class ActivityMain extends AppCompatActivity {
         Menu menu = nvDrawer.getMenu();
         MenuItem register = menu.findItem(R.id.menu_item_register);
         MenuItem login = menu.findItem(R.id.menu_item_login);
+//        MenuItem favourites = menu.findItem(R.id.menu_item_favourites);
 
         if (rc.getSize(Author.class) > 0) {
             lf.setFBState(true);
             register.setVisible(false);
+//            favourites.setVisible(true);
             login.setTitle(R.string.action_logout);
-
             username.setText(rc.getItem(Author.class, null).getUsername());
+        }
 
-        } else {
+        // возможно, излишний код - если RESULT_OK, то вход уже должен быть - автор по-любому должен быть уже добавлен
+        else {
             lf.setFBState(false);
             register.setVisible(true);
+  //          favourites.setVisible(false);
             login.setTitle(R.string.action_login);
         }
     }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (resultCode == RESULT_OK && (requestCode == LOGIN || requestCode == REGISTER)){
+//            lf.lastArticleId = null;
+//            Disposable d = lf.getProductsResult()
+//                    .subscribe(success -> lf.showProducts(success));
+//        }
+//    }
 
     public void navigateTo(Fragment fragment, Boolean back) {
         FragmentTransaction transaction = getSupportFragmentManager()
@@ -119,12 +166,6 @@ public class ActivityMain extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         rc.close();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode,resultCode,data);
     }
 
     public void openDrawer() {

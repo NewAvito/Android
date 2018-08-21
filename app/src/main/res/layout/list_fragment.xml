@@ -30,6 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src = "@drawable/icons8_menu_24"
+            android:tint="@color/colorPrimary"
             android:contentDescription="@string/action_menu"
             android:background="@color/white"
             android:padding="@dimen/short_place"/>
@@ -40,6 +41,7 @@
             android:layout_height="wrap_content"
             android:focusableInTouchMode="true"
             android:hint="@string/hint_find"
+            app:hintTextAppearance="@style/MyAppearance"
             android:background="@color/white">
 
             <com.shifu.user.shifu_5_newavito.ui.CustomTextField

@@ -10,6 +10,8 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 
+import java.io.IOException;
+
 /**
  * Class that handles image requests using Volley.
  */
@@ -65,13 +67,27 @@ public class ImageRequester {
      * @param networkImageView {@link NetworkImageView} to set image on
      * @param url              URL of the image
      */
-    public void setImageFromUrl(NetworkImageView networkImageView, String url) {
+    public boolean setImageFromUrl(NetworkImageView networkImageView, String url) {
         networkImageView.setImageUrl(url, imageLoader);
+        return isOnline();
     }
 
     private int calculateMaxByteSize() {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         final int screenBytes = displayMetrics.widthPixels * displayMetrics.heightPixels * 4;
         return screenBytes * 3;
+    }
+
+    public boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 firebase.google.com");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        }
+        catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+
+        return false;
     }
 }

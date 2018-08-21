@@ -1,6 +1,11 @@
 package com.shifu.user.shifu_5_newavito.ui;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.TextInputEditText;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -9,13 +14,20 @@ import android.view.MotionEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 
+import com.shifu.user.shifu_5_newavito.ListFragment;
 import com.shifu.user.shifu_5_newavito.R;
+
+import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 public class CustomTextField extends TextInputEditText {
 
     private InputMethodManager imm;
     private ImageButton buttonToChange;
-    private int resToChange;
+    private ListFragment lf;
+    //private int resToChange;
 
     final int resRight = R.drawable.icons8_filter_24;
     final int resLeft = R.drawable.icons8_search_24;
@@ -42,6 +54,7 @@ public class CustomTextField extends TextInputEditText {
             viewToTask.setCompoundDrawablesWithIntrinsicBounds(resLeft, 0, resRight, 0);
             rightWidth = getCompoundDrawables()[2].getBounds().width();
             leftWidth = getCompoundDrawables()[0].getBounds().width();
+            setTextViewDrawableColor();
             Log.d("EditorAction", Integer.toString(rightWidth));
         });
     }
@@ -50,13 +63,23 @@ public class CustomTextField extends TextInputEditText {
         this.setCompoundDrawablesWithIntrinsicBounds(resLeft, 0, 0, 0);
         rightWidth = 0;
         leftWidth = getCompoundDrawables()[0].getBounds().width();
+        setTextViewDrawableColor();
     }
 
     public void crossButtonState(){
         this.setCompoundDrawablesWithIntrinsicBounds(resLeft, 0, resRightAlter, 0);
         rightWidth = getCompoundDrawables()[2].getBounds().width();
         leftWidth = getCompoundDrawables()[0].getBounds().width();
+        setTextViewDrawableColor();
 
+    }
+
+    private void setTextViewDrawableColor() {
+        for (Drawable drawable : this.getCompoundDrawables()) {
+            if (drawable != null) {
+                drawable.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN));
+            }
+        }
     }
 
     @Override
@@ -113,9 +136,9 @@ public class CustomTextField extends TextInputEditText {
         isFilter = false;
     }
 
-    public void setButtonToChange(ImageButton imageButton, int resToChange){
+    public void setContectUIToChange(ImageButton imageButton, ListFragment lf){
         this.buttonToChange = imageButton;
-        this.resToChange = resToChange;
+        this.lf = lf;
     }
 
     @Override
@@ -125,9 +148,21 @@ public class CustomTextField extends TextInputEditText {
             this.clearFocus();
             this.setText("");
             this.setCrossWork(false);
-            buttonToChange.setImageResource(resToChange);
+            buttonToChange.setImageDrawable(stylish(R.drawable.icons8_menu_24));
             imm.hideSoftInputFromWindow(this.getWindowToken(), 0);
+
+            lf.showProducts(true);
+//            Disposable d = lf.getProductsResult()
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(lf::showProducts);
+
         }
         return false;
+    }
+
+    public Drawable stylish(int resource) {
+        Drawable icon = getResources().getDrawable(resource);
+        icon.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_ATOP));
+        return icon;
     }
 }

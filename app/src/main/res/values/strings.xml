@@ -18,10 +18,14 @@
 
     <string name="action_back">Назад</string>
     <string name="button_choose">Выбрать</string>
+    <string name="button_cansel">Сбросить фильтр</string>
 
     <string name="action_register">Зарегистрироваться</string>
     <string name="action_login">Войти</string>
     <string name="action_logout">Выйти</string>
+    <string name="action_update">Очистить кэш и обновить данные</string>
+
+    <string name="empty_photo">Без фото</string>
 
     <!-- TO Login page-->
     <string name="prompt_login">Ваш логин*</string>
@@ -31,6 +35,9 @@
     <string name="action_sign_in">Войти</string>
     <string name="action_sign_up">Зарегистрироваться</string>
     <string name="action_restore">Восстановление пароля</string>
+
+    <string name="favourites">Избранное</string>
+    <string name="all">Ко всем объявлениям</string>
 
     <string name="error_invalid_login">Некорректное имя пользователя!</string>
     <string name="error_invalid_password">Пароль слишком короткий!\n(Не менее 6 символов)</string>
@@ -42,17 +49,21 @@
     <string name="product">Товар:</string>
     <string name="action_category">Выбрать категорию товара</string>
     <string name="category">Категория:\n%s</string>
-    <string name="category_cansel">Без категории</string>
     <string name="title">Название*</string>
     <string name="description">Описание</string>
     <string name="price">Цена* (в руб.)</string>
     <string name="action_photo">Выбрать фото товара</string>
     <string name="contacts">Ваши контакты:</string>
     <string name="mobile">Телефон*</string>
-    <string name="action_mobile">Использовать номер активной SIM</string>
     <string name="location">Адрес</string>
     <string name="action_add">Добавить объявление</string>
 
     <string name="error_long">Допустимо не более %i символов</string>
+
+    <!-- TO Product page-->
+    <string name="description_field">Описание: %s</string>
+    <string name="price_field">Цена: %s руб.</string>
+    <string name="mobile_field">Телефон: %s</string>
+    <string name="location_field">Адрес: %s</string>
 
 </resources>
